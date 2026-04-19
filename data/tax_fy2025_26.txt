@@ -1,0 +1,94 @@
+INCOME TAX FY 2025-26 (BUDGET 2025) — COMPLETE GUIDE
+
+MAJOR CHANGE: Zero tax for income up to ₹12,75,000 in New Tax Regime (Budget 2025).
+
+NEW TAX REGIME SLABS FY 2025-26:
+- Up to ₹4,00,000: NIL (0%)
+- ₹4,00,001 to ₹8,00,000: 5%
+- ₹8,00,001 to ₹12,00,000: 10%
+- ₹12,00,001 to ₹16,00,000: 15%
+- ₹16,00,001 to ₹20,00,000: 20%
+- ₹20,00,001 to ₹24,00,000: 25%
+- Above ₹24,00,000: 30%
+Standard Deduction: ₹75,000 (salaried employees and pensioners)
+Rebate u/s 87A: ₹60,000 for net taxable income up to ₹12,00,000
+Effectively ZERO tax for gross income up to ₹12,75,000 (₹12L + ₹75K std deduction)
+
+NEW REGIME EXAMPLES:
+- ₹8L salary → taxable ₹7.25L → tax ₹23,750 → rebate applied → ZERO tax
+- ₹10L salary → taxable ₹9.25L → tax ₹55,000 → rebate applied → ZERO tax
+- ₹12L salary → taxable ₹11.25L → tax ₹1,00,000 → rebate not fully applicable → some tax
+- ₹12.75L salary → taxable ₹12L → tax ₹1,00,000 → rebate ₹60,000 → tax ₹40,000 + cess
+- ₹15L salary → taxable ₹14.25L → tax ₹1,60,000 + cess → no rebate
+- ₹20L salary → taxable ₹19.25L → approximately ₹3,50,000 tax + cess
+
+OLD TAX REGIME SLABS FY 2025-26 (unchanged):
+- Up to ₹2,50,000: NIL
+- ₹2,50,001 to ₹5,00,000: 5%
+- ₹5,00,001 to ₹10,00,000: 20%
+- Above ₹10,00,000: 30%
+Standard Deduction: ₹50,000
+Rebate u/s 87A: ₹12,500 for net taxable up to ₹5,00,000
+Surcharge: 10% for income 50L-1Cr, 15% for 1Cr-2Cr, 25% for 2Cr-5Cr, 37% above 5Cr (max 15% in new regime)
+Health & Education Cess: 4% on tax + surcharge
+
+OLD REGIME — MAJOR DEDUCTIONS:
+Section 80C (₹1.5L limit): ELSS, PPF, EPF, NPS, LIC, ULIP, home loan principal, tuition fees, NSC, SSY
+Section 80D: ₹25K health insurance (₹50K if aged 60+); ₹25K for parents (₹50K if parents are 60+)
+Section 80CCD(1B): Extra ₹50,000 for NPS Tier 1 contribution (over 80C limit)
+HRA Exemption: Min of (actual HRA, 50%/40% of basic, rent - 10% basic)
+Section 80E: Education loan interest (8 years, no upper cap)
+Section 24(b): Home loan interest ₹2L for self-occupied property
+Section 80TTA: ₹10,000 savings account interest exemption (₹50K for seniors under 80TTB)
+LTA: Leave Travel Allowance for domestic travel (2 trips in 4-year block)
+
+WHICH REGIME TO CHOOSE:
+New regime better if: Total deductions < ₹3,75,000 (roughly)
+Old regime better if: Deductions (80C + 80D + HRA + NPS + home loan interest) > ₹3,75,000
+
+SALARY EMPLOYEES: Can switch regime every year while filing ITR.
+BUSINESS INCOME: Can switch only once from old to new.
+
+CAPITAL GAINS TAX (Budget 2024 changes, applicable FY 2025-26):
+- Equity/Equity MF LTCG (held >1 year): 12.5% on gains above ₹1,25,000 (no indexation)
+- Equity/Equity MF STCG (held <1 year): 20%
+- Real Estate LTCG (held >2 years): 12.5% WITHOUT indexation (indexation removed Budget 2024)
+- Real Estate STCG: Slab rate
+- Debt MF (all): Slab rate (indexation benefit removed April 2023 Finance Act)
+- Gold/Gold ETF LTCG (held >2 years): 12.5%
+- Gold/Gold ETF STCG: Slab rate
+- SGB (Sovereign Gold Bond) at maturity: Tax-free
+- SGB SGB interest: Taxable at slab rate
+
+CAPITAL GAINS EXEMPTIONS:
+- Section 54: Reinvest property sale proceeds in another residential property
+- Section 54F: Reinvest equity sale proceeds in residential property
+- Section 54EC: Invest up to ₹50L in NHAI/REC bonds within 6 months of sale
+
+TDS RATES FY 2025-26:
+- FD/RD interest: 10% if interest > ₹40,000/year (₹50K for seniors)
+- Rent > ₹50,000/month: 2% TDS by tenant
+- Salary: As per slab
+- Submit Form 15G (under 60) or 15H (60+) to avoid TDS if income below exemption limit
+
+ITR FILING DEADLINES:
+- Salaried (no audit): July 31 each year
+- Business with audit: October 31 each year
+- Penalty: ₹5,000 for late filing (₹1,000 if income < ₹5L)
+
+ADVANCE TAX (for income outside salary):
+- 15% by June 15
+- 45% by September 15
+- 75% by December 15
+- 100% by March 15
+Applicable if tax liability > ₹10,000 after TDS
+
+TAX SAVING INVESTMENT DEADLINES:
+- 80C, 80D, NPS: Investments must be made by March 31 of the financial year
+- ELSS: Best to start SIP throughout year rather than lump sum in March
+
+TAX LOSS HARVESTING:
+- Short-term capital losses can offset both STCG and LTCG
+- Long-term capital losses can only offset LTCG
+- Unabsorbed losses can be carried forward 8 years
+- ELSS gains up to ₹1.25L are tax-free (book profits annually to reset cost basis)

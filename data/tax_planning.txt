@@ -1,0 +1,74 @@
+INDIAN INCOME TAX PLANNING GUIDE (FY 2024-25)
+
+TAX REGIMES:
+India has two tax regimes. The New Tax Regime (default from FY 2024-25) has lower rates but fewer deductions. The Old Tax Regime allows many deductions but higher base rates.
+
+NEW TAX REGIME SLABS (FY 2024-25):
+- Income up to ₹3,00,000: Nil
+- ₹3,00,001 to ₹7,00,000: 5% (with rebate u/s 87A if income ≤ ₹7L, tax becomes zero)
+- ₹7,00,001 to ₹10,00,000: 10%
+- ₹10,00,001 to ₹12,00,000: 15%
+- ₹12,00,001 to ₹15,00,000: 20%
+- Above ₹15,00,000: 30%
+Standard deduction of ₹75,000 available in new regime from FY 2024-25.
+
+OLD TAX REGIME SLABS:
+- Income up to ₹2,50,000: Nil
+- ₹2,50,001 to ₹5,00,000: 5% (rebate u/s 87A if income ≤ ₹5L)
+- ₹5,00,001 to ₹10,00,000: 20%
+- Above ₹10,00,000: 30%
+Standard deduction: ₹50,000
+
+POPULAR DEDUCTIONS (OLD REGIME ONLY):
+Section 80C (up to ₹1,50,000):
+- ELSS mutual funds (3-year lock-in)
+- PPF (Public Provident Fund) - 15-year lock-in, 7.1% interest
+- EPF (Employee Provident Fund)
+- NSC (National Savings Certificate)
+- Life insurance premium
+- Principal repayment of home loan
+- Sukanya Samriddhi Yojana (for girl child)
+- 5-year tax-saving FD
+
+Section 80D (health insurance premiums):
+- Up to ₹25,000 for self/spouse/children
+- Additional ₹25,000 for parents (₹50,000 if parents are senior citizens)
+
+Section 80CCD(1B): Additional ₹50,000 for NPS investment (over and above 80C)
+
+HRA (House Rent Allowance): Exemption on rent paid, calculated as minimum of:
+- Actual HRA received
+- 50% of basic salary (metro cities) or 40% (non-metro)
+- Actual rent paid minus 10% of basic salary
+
+LTA (Leave Travel Allowance): Exempt for domestic travel to anywhere in India
+
+HOME LOAN DEDUCTIONS:
+- Section 24(b): Up to ₹2,00,000 per year on home loan interest (self-occupied property)
+- Section 80C: Principal repayment within ₹1,50,000 limit
+
+CAPITAL GAINS TAX:
+- Short-Term Capital Gains (STCG) on equity: 15% flat (held < 1 year)
+- Long-Term Capital Gains (LTCG) on equity: 10% on gains above ₹1,00,000 (held > 1 year)
+- Debt mutual funds: LTCG taxed at income tax slab rate (from FY 2023-24)
+- Gold: LTCG at 20% with indexation after 3 years (or 10% without indexation)
+
+TAX-SAVING TIPS:
+1. Start tax planning from April, not March
+2. Choose ELSS over PPF if you need liquidity (3-year vs 15-year lock-in)
+3. Contribute to NPS Tier 1 for extra ₹50,000 deduction under 80CCD(1B)
+4. Get health insurance for parents — saves ₹25,000-₹50,000 in tax
+5. Declare home loan interest if you have a home loan
+6. Submit rent receipts for HRA if you pay rent
+7. Use Form 12BB to declare all investments to employer to reduce TDS
+
+WHICH REGIME TO CHOOSE:
+New Regime is better if: You have few deductions, take-home salary matters more, income < ₹7L (zero tax)
+Old Regime is better if: You have 80C investments + home loan + HRA + parents' health insurance adding up to ₹3L+ deductions
+
+ITR FILING:
+- Deadline: July 31 for individuals without audit requirement
+- Mandatory if income > ₹2.5L (old regime) or ₹3L (new regime)
+- File online at incometax.gov.in
+- Form 16 from employer makes it easy
+- Missing deadline results in late fee under Section 234F (₹5,000 or ₹1,000 if income < ₹5L)

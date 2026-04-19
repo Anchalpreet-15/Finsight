@@ -1,0 +1,90 @@
+STOCK MARKET BASICS FOR INDIAN INVESTORS
+
+WHAT IS THE STOCK MARKET:
+A stock market is a marketplace where shares (ownership stakes) of companies are bought and sold.
+India has two major exchanges: NSE (National Stock Exchange) and BSE (Bombay Stock Exchange).
+Nifty 50: Top 50 companies on NSE by market capitalization. Benchmark index.
+Sensex: Top 30 companies on BSE. Oldest index in India.
+
+HOW TO START INVESTING IN STOCKS:
+Step 1: Open a Demat account (stores shares electronically) + Trading account
+Brokers: Zerodha (cheapest for frequent traders, ₹20/trade), Groww (free delivery trades), Angel One, HDFC Securities, ICICI Direct
+Step 2: Link to your bank account
+Step 3: Add funds and start buying
+Step 4: Buy shares through the broker's app/platform
+
+DEMAT ACCOUNT CHARGES:
+Account opening: Free on most platforms (Zerodha, Groww)
+Annual maintenance charge (AMC): ₹300-900/year depending on broker
+Brokerage: Zero for delivery trades on Groww; ₹20 flat per trade on Zerodha
+
+STOCK INVESTMENT APPROACHES:
+
+Buy and Hold (Long-term investing):
+- Buy fundamentally strong companies and hold for 5-10+ years
+- Warren Buffett's approach
+- Works well for large, established companies (Reliance, TCS, HDFC Bank, Infosys)
+- Requires patience but historically rewarding
+
+Value Investing:
+- Buy stocks trading below their intrinsic value
+- Requires fundamental analysis (reading balance sheets, P/E ratio, debt levels)
+- Not recommended for beginners
+
+Growth Investing:
+- Invest in companies growing revenue and profits rapidly
+- Higher risk, higher potential reward
+- Example: Small/mid-cap companies in growing sectors
+
+SIP in Stocks (through mutual funds or directly):
+- More beginner-friendly through index funds that track Nifty 50
+- Less risky than picking individual stocks
+
+KEY RATIOS TO UNDERSTAND:
+P/E Ratio (Price to Earnings): Stock price / Earnings per share. Lower can mean cheaper, but context matters.
+Market Cap: Total market value of company. Large cap = stable, Small cap = risky.
+Dividend: Share of profit paid to shareholders. Dividend yield = Dividend / Share price.
+
+WHAT IS F&O (FUTURES & OPTIONS):
+Derivatives that derive value from an underlying stock or index.
+EXTREMELY RISKY: Over 90% of F&O traders lose money.
+Never trade F&O without full understanding. It's essentially speculation, not investing.
+SEBI study (2023): 89% of individual F&O traders lost money in FY 2021-22.
+
+INDEX FUNDS vs DIRECT STOCKS:
+Index funds are BETTER for most investors because:
+- Automatic diversification across 50+ companies
+- No need to research individual companies
+- Lower cost (expense ratio 0.05-0.2%)
+- Has beaten most actively managed funds over 10+ years
+- No emotional decision-making required
+
+For beginners: Start with Nifty 50 index fund SIP before picking individual stocks.
+
+TAX ON STOCK GAINS:
+Short-term capital gains (held < 1 year): 15% flat
+Long-term capital gains (held > 1 year): 10% on gains above ₹1,00,000 per year (tax-free up to ₹1L)
+Dividend income: Added to your income and taxed at your slab rate
+
+COMMON MISTAKES TO AVOID:
+1. Panic selling during market crashes — markets always recover over time
+2. Investing money you need in 1-2 years in equity
+3. Trading F&O without experience — most people lose money
+4. Following tips on social media / WhatsApp without research
+5. Checking portfolio daily — causes anxiety and bad decisions
+6. Putting all money in one stock — diversify
+7. Timing the market — even experts can't do this consistently
+
+CRYPTOCURRENCY IN INDIA:
+30% flat tax on all crypto gains (no deductions allowed, no setoff against losses)
+1% TDS on crypto transactions above ₹10,000
+High risk, highly speculative
+SEBI and RBI have expressed concerns — not regulated like stocks
+Limit to maximum 5-10% of portfolio if you invest at all
+Never borrow to invest in crypto
+
+MARKET INDICES EXPLAINED:
+Nifty 50 up 1%: Large companies rose on average
+Nifty Midcap 150: Performance of mid-sized companies
+Nifty Small Cap 250: Performance of small companies
+India VIX (Volatility Index): Higher VIX = more fear/uncertainty in market (>20 is high)

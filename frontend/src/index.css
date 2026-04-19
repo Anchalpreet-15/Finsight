@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base reset ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #141a1c;
+  color: #e2e6e9;
+}
+
+/* ─── Selection ─────────────────────────────────────────── */
+::selection {
+  background: rgba(0, 230, 118, 0.35); /* Neon mint */
+  color: white;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 230, 118, 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 230, 118, 0.5); }
+
+/* ─── Glassmorphism utilities ───────────────────────────── */
+.glass {
+  background: rgba(32, 42, 45, 0.6); /* surface-800 with opacity */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 230, 118, 0.1);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ─── Message bubbles ───────────────────────────────────── */
+.ai-message p { margin-bottom: 0.65rem; }
+.ai-message p:last-child { margin-bottom: 0; }
+
+/* ─── Typing dots ───────────────────────────────────────── */
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+  30%           { transform: translateY(-8px); opacity: 1; }
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00e676, #0d9488);
+  display: inline-block;
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ─── Message slide-in ──────────────────────────────────── */
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.msg-enter { animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* ─── Onboarding card pulse on select ──────────────────── */
+@keyframes selectPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+.option-selected { animation: selectPop 0.2s ease-out; }
+
+/* ─── Gradient text utility ─────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #5eead4, #00e676);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Shimmer bg ────────────────────────────────────────── */
+.shimmer-bg {
+  background: linear-gradient(
+    110deg,
+    rgba(0, 230, 118, 0.05) 0%,
+    rgba(0, 230, 118, 0.12) 40%,
+    rgba(13, 148, 136, 0.08) 60%,
+    rgba(0, 230, 118, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── Focus rings ───────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid #00e676;
+  outline-offset: 2px;
+}
+
+/* ─── Ambient glow behind brand icon ────────────────────── */
+.brand-glow {
+  box-shadow:
+    0 0 30px rgba(0, 230, 118, 0.3),
+    0 0 60px rgba(0, 230, 118, 0.15);
+}
+
+/* ─── Hover lift ───────────────────────────────────────── */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 230, 118, 0.15);
+}

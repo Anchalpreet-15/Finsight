@@ -1,0 +1,51 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+backend/venv/
+backend/venv_new/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.local
+.env.production
+backend/.env
+
+# ChromaDB vector store (regenerated on startup)
+chroma_db/
+
+# Node.js
+node_modules/
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# IDE / OS / tool config
+.idea/
+.vscode/
+.claude/
+*.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# HuggingFace model cache
+.cache/
+huggingface/
+
+# Jupyter
+.ipynb_checkpoints/

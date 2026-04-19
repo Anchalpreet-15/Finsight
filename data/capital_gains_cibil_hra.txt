@@ -1,0 +1,143 @@
+CAPITAL GAINS, CIBIL SCORE & HRA — COMPREHENSIVE INDIA GUIDE
+
+=== CAPITAL GAINS TAX (Updated Budget 2024/2025) ===
+
+EQUITY & EQUITY MUTUAL FUNDS:
+Long-Term Capital Gains (LTCG) — held more than 1 year:
+- Tax rate: 12.5% on gains exceeding ₹1,25,000 in a financial year
+- No indexation benefit
+- If total LTCG in year < ₹1,25,000 → ZERO tax
+- Tax loss harvesting: Book gains up to ₹1.25L each March to reset cost basis
+
+Short-Term Capital Gains (STCG) — held less than 1 year:
+- Tax rate: 20% (increased from 15% in Budget 2024)
+- No exemptions; fully taxable
+
+ELSS mutual funds: Same as equity — 1-year LTCG, gains above ₹1.25L taxed at 12.5%
+
+REAL ESTATE (Budget 2024 major change):
+LTCG — held more than 2 years:
+- Tax rate: 12.5% WITHOUT indexation (indexation benefit removed Budget 2024)
+- Previously: 20% with indexation (old regime more beneficial for old properties)
+- Option: Taxpayers can choose old regime (20% + indexation) for properties bought before July 23, 2024
+- Section 54 exemption: Reinvest in another residential property within 1 year (before) or 2 years (after sale) or 3 years (under construction)
+- Section 54EC: Invest up to ₹50L in NHAI/REC bonds within 6 months — entire LTCG exempt
+
+STCG on real estate — held less than 2 years: Taxed at income slab rate
+
+DEBT MUTUAL FUNDS (post April 1, 2023):
+- ALL gains (regardless of holding period) are now taxed at income slab rate
+- Indexation and LTCG benefits completely removed for debt funds
+- Better alternatives now: FD (similar tax), SGBs, direct bonds
+
+GOLD:
+Physical gold, Gold ETF, Gold Fund of Funds:
+- LTCG (held >2 years): 12.5% (Budget 2024)
+- STCG (held <2 years): Slab rate
+Sovereign Gold Bonds (SGB):
+- Interest (2.5%): Taxable at slab rate
+- On maturity (8 years) from RBI: Completely TAX-FREE
+- If sold on exchange before maturity: LTCG at 12.5% (after 1 year holding)
+
+CRYPTO AND VIRTUAL DIGITAL ASSETS (VDA):
+- Flat 30% tax on all gains (no slab, no exemption)
+- 1% TDS on every transaction above ₹50,000
+- Losses CANNOT be set off against any other income
+- Losses from one crypto CANNOT offset gains from another crypto
+
+TAX LOSS HARVESTING STRATEGY:
+- Sell loss-making investments before March 31
+- STCL can offset STCG and LTCG
+- LTCL can only offset LTCG
+- Carry forward unused losses for 8 years (file ITR to claim)
+- For equity: Book ₹1.25L LTCG every March (tax-free) to reset cost basis — save significant tax over time
+
+=== CIBIL SCORE & CREDIT HEALTH ===
+
+CIBIL SCORE RANGES:
+- 750-900: Excellent — Best loan rates, instant approvals
+- 700-749: Good — Loans approved, slightly higher rates
+- 650-699: Fair — Loans possible but higher rates (1-3% more)
+- 600-649: Poor — Difficult to get loans; only NBFC/high-rate options
+- 300-599: Very Poor — Loan rejection; need urgent credit repair
+
+HOW CIBIL SCORE IS CALCULATED:
+1. Payment History (35%): Most important factor. Even ONE missed payment drops score 50-100 points.
+2. Credit Utilisation (30%): Keep below 30% of total credit limit. Ideal: under 10%.
+   Example: If total credit limit = ₹1,00,000, keep outstanding below ₹30,000.
+3. Credit Age/History Length (15%): Older credit history = better score. Keep oldest card active.
+4. Credit Mix (10%): Mix of secured (home loan, car loan) + unsecured (CC, personal loan) is good.
+5. New Credit Enquiries (10%): Hard enquiries reduce score. Don't apply for multiple loans/cards.
+
+COMMON CREDIT SCORE MISTAKES:
+- Paying only minimum due on credit card (still increases utilisation, interest piles up)
+- Closing old credit cards (reduces credit age and total limit)
+- Multiple loan applications in short time (each hard enquiry hurts score)
+- Missing EMI even by 1 day can be reported after 30+ days overdue
+- Settling a loan for less than owed (shows as "Settled" not "Closed" — hurts for 7 years)
+
+HOW TO IMPROVE CIBIL SCORE:
+- Pay ALL EMIs and credit card dues BEFORE due date (set up auto-pay)
+- Reduce credit card utilisation below 30% immediately
+- Request credit limit increase from bank (improves utilisation ratio without spending more)
+- Get a secured credit card against FD if score is very low
+- Dispute errors in CIBIL report (free at cibil.com — 1 free report per year; also Paisabazaar/BankBazaar)
+- Don't close old credit cards unless annual fee is very high
+- Add yourself as authorized user on a family member's good credit card
+
+CREDIT CARD BEST PRACTICES:
+- Pay FULL outstanding amount before due date (not just minimum)
+- Use below 30% of credit limit each month
+- Don't take cash advance (2.5-3.5% fee + interest from day 1)
+- Compare reward cards: HDFC Regalia, Axis Magnus, SBI SimplyCLICK, Amex MRCC
+- International transactions: 1.5-3.5% forex markup fee
+- Credit card interest: 36-42% per annum if dues not paid fully — wealth destroyer
+
+LOAN AGAINST SECURITIES (LAS):
+- Overdraft against MF, shares, FD, insurance policies
+- Lower interest than personal loan (9-13%)
+- Interest only on amount used
+- Emergency use when you don't want to break investments
+
+=== HRA (HOUSE RENT ALLOWANCE) EXEMPTION ===
+
+AVAILABILITY: Only under OLD Tax Regime (not available in New Regime)
+
+CALCULATION — MINIMUM OF THREE:
+1. Actual HRA received from employer
+2. 50% of basic salary (if staying in Delhi/Mumbai/Kolkata/Chennai — metro cities)
+   OR 40% of basic salary (all other cities — non-metro)
+3. Actual rent paid MINUS 10% of basic salary
+
+EXAMPLE:
+Basic salary: ₹40,000/month (₹4,80,000/year)
+HRA received: ₹20,000/month (₹2,40,000/year)
+Rent paid: ₹18,000/month (₹2,16,000/year)
+City: Bangalore (non-metro — 40% rule)
+
+a) Actual HRA: ₹2,40,000
+b) 40% of basic: ₹1,92,000
+c) Rent - 10% basic: ₹2,16,000 - ₹48,000 = ₹1,68,000
+
+Minimum = ₹1,68,000 → This is the tax-free HRA exemption
+Taxable HRA: ₹2,40,000 - ₹1,68,000 = ₹72,000
+
+METRO CITIES for HRA (50% rule): Delhi, Mumbai, Kolkata, Chennai
+NON-METRO (40% rule): Bangalore, Hyderabad, Pune, Ahmedabad, and all other cities
+
+DOCUMENTS REQUIRED:
+- Rent receipts (monthly for rent > ₹3,000)
+- Rental agreement
+- Landlord's PAN if annual rent > ₹1,00,000
+- You CAN pay rent to parents — need rent agreement + bank transfer proof
+
+HRA WHEN LIVING IN OWN HOUSE: No HRA exemption. But can claim home loan interest deduction (₹2L u/s 24b).
+HRA + HOME LOAN: Can claim both if working city is different from property location.
+
+LEAVE TRAVEL ALLOWANCE (LTA):
+- For domestic travel only (not international)
+- Economy class airfare or AC first class train fare (actual ticket cost)
+- 2 trips in a block of 4 years (current block: 2022-2025)
+- Maximum equal to actual travel cost
+- Only available in old tax regime
+- Submit travel proof (tickets, boarding passes) to employer
