@@ -20,7 +20,7 @@ DATA_DIR   = os.path.normpath(os.path.join(_BASE_DIR, "../../data"))
 CHROMA_DIR = os.path.normpath(os.path.join(_BASE_DIR, "../../chroma_db"))
 
 EMBED_MODEL = "all-MiniLM-L6-v2"
-TOP_K       = 3
+TOP_K       = 2
 
 _collection = None
 _model      = None

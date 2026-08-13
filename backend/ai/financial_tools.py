@@ -314,7 +314,7 @@ def get_stock_data(ticker_symbol: str) -> str:
 def search_financial_web(query: str) -> str:
     try:
         with DDGS() as ddgs:
-            results = list(ddgs.text(query, max_results=4))
+            results = list(ddgs.text(query, max_results=3))
         if not results:
             return f"No results found for: {query}"
         lines = [f"- {r['title']}: {r['body']}" for r in results]
@@ -657,13 +657,13 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_sip",
-            "description": "Calculate returns from a Systematic Investment Plan (SIP). Use for SIP return projections, monthly investment growth, mutual fund corpus.",
+            "description": "SIP/MF corpus projection",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "monthly_amount":        {"type": "number", "description": "Monthly SIP amount in INR"},
-                    "annual_return_percent": {"type": "number", "description": "Expected annual return % (12 for equity, 7 for debt)"},
-                    "years":                 {"type": "integer", "description": "Investment duration in years"},
+                    "monthly_amount":        {"type": "number",  "description": "Monthly SIP (INR)"},
+                    "annual_return_percent": {"type": "number",  "description": "Annual return %"},
+                    "years":                 {"type": "integer", "description": "Duration years"},
                 },
                 "required": ["monthly_amount", "annual_return_percent", "years"],
             },
@@ -673,13 +673,13 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_emi",
-            "description": "Calculate monthly EMI for any loan (home, car, personal, education). Use for EMI amounts, loan affordability, total interest.",
+            "description": "Loan EMI and total interest",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "principal":    {"type": "number",  "description": "Loan amount in INR"},
-                    "annual_rate":  {"type": "number",  "description": "Annual interest rate %"},
-                    "years":        {"type": "integer", "description": "Loan tenure in years"},
+                    "principal":   {"type": "number",  "description": "Loan amount (INR)"},
+                    "annual_rate": {"type": "number",  "description": "Annual rate %"},
+                    "years":       {"type": "integer", "description": "Tenure years"},
                 },
                 "required": ["principal", "annual_rate", "years"],
             },
@@ -689,12 +689,12 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_income_tax",
-            "description": "Calculate Indian income tax for FY 2025-26. Use for any tax calculation, TDS, regime comparison, ITR filing.",
+            "description": "Indian income tax FY2025-26 (new/old regime)",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "annual_income": {"type": "number", "description": "Annual gross income in INR"},
-                    "regime":        {"type": "string", "description": "'new' (default) or 'old'"},
+                    "annual_income": {"type": "number", "description": "Gross annual income (INR)"},
+                    "regime":        {"type": "string", "description": "'new' or 'old'"},
                 },
                 "required": ["annual_income"],
             },
@@ -704,14 +704,14 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_savings_goal",
-            "description": "Calculate monthly savings needed to reach a financial goal (car, vacation, house down payment, etc.).",
+            "description": "Monthly savings needed for a financial goal",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "target_amount":    {"type": "number",  "description": "Goal amount in INR"},
-                    "current_savings":  {"type": "number",  "description": "Amount already saved"},
-                    "annual_return":    {"type": "number",  "description": "Expected annual return %"},
-                    "years":            {"type": "integer", "description": "Time available in years"},
+                    "target_amount":   {"type": "number",  "description": "Goal (INR)"},
+                    "current_savings": {"type": "number",  "description": "Already saved (INR)"},
+                    "annual_return":   {"type": "number",  "description": "Return %"},
+                    "years":           {"type": "integer", "description": "Time years"},
                 },
                 "required": ["target_amount", "current_savings", "annual_return", "years"],
             },
@@ -721,11 +721,11 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "budget_planner",
-            "description": "Create a personalised monthly budget using the 50/30/20 rule.",
+            "description": "50/30/20 monthly budget plan",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "monthly_income": {"type": "number", "description": "Monthly take-home salary in INR (after tax)"},
+                    "monthly_income": {"type": "number", "description": "Take-home monthly (INR)"},
                 },
                 "required": ["monthly_income"],
             },
@@ -735,12 +735,12 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "emergency_fund_calculator",
-            "description": "Calculate emergency fund size based on monthly expenses and job type.",
+            "description": "Emergency fund target by job type",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "monthly_expenses": {"type": "number", "description": "Monthly essential expenses in INR"},
-                    "job_type":         {"type": "string", "description": "'government', 'private', 'freelance', 'startup', or 'business'"},
+                    "monthly_expenses": {"type": "number", "description": "Monthly expenses (INR)"},
+                    "job_type":         {"type": "string", "description": "govt/private/freelance/startup"},
                 },
                 "required": ["monthly_expenses"],
             },
@@ -750,15 +750,15 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "debt_payoff_advisor",
-            "description": "Compare Avalanche vs Snowball debt payoff strategies for multiple loans.",
+            "description": "Avalanche vs Snowball debt payoff strategy",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "total_debt":              {"type": "number", "description": "Total outstanding debt in INR"},
-                    "highest_interest_name":   {"type": "string", "description": "Name of highest interest debt (e.g. 'credit card')"},
-                    "highest_interest_rate":   {"type": "number", "description": "Interest rate of that highest debt (e.g. 36)"},
-                    "smallest_debt_amount":    {"type": "number", "description": "Balance of the smallest debt in INR"},
-                    "smallest_debt_rate":      {"type": "number", "description": "Interest rate of the smallest debt"},
+                    "total_debt":            {"type": "number", "description": "Total debt (INR)"},
+                    "highest_interest_name": {"type": "string", "description": "Highest-rate debt name"},
+                    "highest_interest_rate": {"type": "number", "description": "Its rate %"},
+                    "smallest_debt_amount":  {"type": "number", "description": "Smallest debt (INR)"},
+                    "smallest_debt_rate":    {"type": "number", "description": "Its rate %"},
                 },
                 "required": ["total_debt", "highest_interest_name", "highest_interest_rate", "smallest_debt_amount", "smallest_debt_rate"],
             },
@@ -768,11 +768,11 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "get_stock_data",
-            "description": "Fetch real-time stock price and statistics. For Indian stocks append '.NS' (NSE) or '.BO' (BSE) to ticker.",
+            "description": "Real-time NSE/BSE stock price and stats. Append .NS or .BO to ticker.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "ticker_symbol": {"type": "string", "description": "Stock ticker e.g. 'RELIANCE.NS', 'TCS.NS', 'AAPL'"},
+                    "ticker_symbol": {"type": "string", "description": "Ticker e.g. RELIANCE.NS"},
                 },
                 "required": ["ticker_symbol"],
             },
@@ -782,11 +782,11 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "search_financial_web",
-            "description": "Search the web for current financial news, RBI rates, MF NAVs, SEBI rules, budget announcements.",
+            "description": "Web search for current rates, NAVs, RBI/SEBI news",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "Specific search query e.g. 'RBI repo rate April 2025'"},
+                    "query": {"type": "string", "description": "Search query"},
                 },
                 "required": ["query"],
             },
@@ -796,13 +796,13 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_ppf",
-            "description": "Calculate PPF maturity value and tax benefits (EEE status, Section 80C).",
+            "description": "PPF maturity and 80C tax benefit (EEE)",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "annual_contribution": {"type": "number",  "description": "Amount invested per year in INR (max ₹1,50,000)"},
-                    "years":               {"type": "integer", "description": "Duration in years (minimum 15)"},
-                    "interest_rate":       {"type": "number",  "description": "PPF rate % (default 7.1)"},
+                    "annual_contribution": {"type": "number",  "description": "Annual deposit (INR, max 1.5L)"},
+                    "years":               {"type": "integer", "description": "Duration years"},
+                    "interest_rate":       {"type": "number",  "description": "Rate % (default 7.1)"},
                 },
                 "required": ["annual_contribution"],
             },
@@ -812,15 +812,15 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_fd_rd",
-            "description": "Calculate Fixed Deposit (FD) or Recurring Deposit (RD) maturity and tax implications.",
+            "description": "FD or RD maturity value",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "principal":   {"type": "number",  "description": "For FD: lump sum. For RD: monthly deposit (INR)"},
-                    "annual_rate": {"type": "number",  "description": "Annual interest rate %"},
-                    "years":       {"type": "integer", "description": "Duration in years"},
-                    "is_rd":       {"type": "boolean", "description": "False for FD (default), True for RD"},
-                    "compounding": {"type": "string",  "description": "'quarterly' (default), 'monthly', or 'annually'"},
+                    "principal":   {"type": "number",  "description": "Lump sum (FD) or monthly (RD) in INR"},
+                    "annual_rate": {"type": "number",  "description": "Rate %"},
+                    "years":       {"type": "integer", "description": "Duration years"},
+                    "is_rd":       {"type": "boolean", "description": "True for RD, false for FD"},
+                    "compounding": {"type": "string",  "description": "quarterly/monthly/annually"},
                 },
                 "required": ["principal", "annual_rate", "years"],
             },
@@ -830,14 +830,14 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_hra_exemption",
-            "description": "Calculate HRA tax exemption under old tax regime.",
+            "description": "HRA tax exemption under old regime",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "basic_salary":      {"type": "number", "description": "Annual basic salary in INR"},
-                    "hra_received":      {"type": "number", "description": "Annual HRA received from employer in INR"},
-                    "actual_rent_paid":  {"type": "number", "description": "Annual rent actually paid in INR"},
-                    "city_type":         {"type": "string", "description": "'metro' (Delhi/Mumbai/Kolkata/Chennai) or 'non-metro'"},
+                    "basic_salary":     {"type": "number", "description": "Annual basic (INR)"},
+                    "hra_received":     {"type": "number", "description": "Annual HRA received (INR)"},
+                    "actual_rent_paid": {"type": "number", "description": "Annual rent paid (INR)"},
+                    "city_type":        {"type": "string", "description": "metro or non-metro"},
                 },
                 "required": ["basic_salary", "hra_received", "actual_rent_paid"],
             },
@@ -847,14 +847,14 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_capital_gains_tax",
-            "description": "Calculate capital gains tax on equity, debt MF, real estate, or gold.",
+            "description": "LTCG/STCG on equity, debt, real estate, or gold",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "asset_type":     {"type": "string", "description": "'equity', 'debt', 'real_estate', 'gold', or 'elss'"},
-                    "purchase_price": {"type": "number", "description": "Original purchase cost in INR"},
-                    "sale_price":     {"type": "number", "description": "Selling price in INR"},
-                    "holding_years":  {"type": "number", "description": "Number of years held (e.g. 2.5)"},
+                    "asset_type":     {"type": "string", "description": "equity/debt/real_estate/gold/elss"},
+                    "purchase_price": {"type": "number", "description": "Buy price (INR)"},
+                    "sale_price":     {"type": "number", "description": "Sell price (INR)"},
+                    "holding_years":  {"type": "number", "description": "Years held"},
                 },
                 "required": ["asset_type", "purchase_price", "sale_price", "holding_years"],
             },
@@ -864,17 +864,17 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "calculate_retirement_corpus",
-            "description": "Calculate retirement corpus needed (FIRE number) and monthly SIP required.",
+            "description": "Retirement corpus (FIRE number) and monthly SIP needed",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "current_age":              {"type": "integer", "description": "Current age in years"},
-                    "retirement_age":           {"type": "integer", "description": "Target retirement age"},
-                    "monthly_expenses":         {"type": "number",  "description": "Current monthly expenses in INR"},
-                    "inflation_rate":           {"type": "number",  "description": "Expected annual inflation % (default 6)"},
-                    "post_retirement_return":   {"type": "number",  "description": "Post-retirement return % (default 7)"},
-                    "pre_retirement_return":    {"type": "number",  "description": "Pre-retirement investment return % (default 12)"},
-                    "current_savings":          {"type": "number",  "description": "Current savings/investments in INR (default 0)"},
+                    "current_age":            {"type": "integer", "description": "Current age"},
+                    "retirement_age":          {"type": "integer", "description": "Target retirement age"},
+                    "monthly_expenses":        {"type": "number",  "description": "Current monthly expenses (INR)"},
+                    "inflation_rate":          {"type": "number",  "description": "Inflation % (default 6)"},
+                    "post_retirement_return":  {"type": "number",  "description": "Post-retirement return % (default 7)"},
+                    "pre_retirement_return":   {"type": "number",  "description": "Pre-retirement return % (default 12)"},
+                    "current_savings":         {"type": "number",  "description": "Savings today (INR)"},
                 },
                 "required": ["current_age", "retirement_age", "monthly_expenses"],
             },
@@ -884,11 +884,11 @@ TOOL_SCHEMAS = [
         "type": "function",
         "function": {
             "name": "cibil_score_advisor",
-            "description": "Give CIBIL score analysis and personalised credit improvement advice.",
+            "description": "CIBIL score analysis and credit improvement plan",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "cibil_score": {"type": "integer", "description": "Current CIBIL score (300-900)"},
+                    "cibil_score": {"type": "integer", "description": "Score 300-900"},
                 },
                 "required": ["cibil_score"],
             },

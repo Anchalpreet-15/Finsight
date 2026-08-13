@@ -195,12 +195,33 @@ export default function InvestmentViz({ data }) {
 }
 
 // ── Parser: extract INVEST_VIZ block from AI text ─────────────────────────────
+// Uses brace-depth counting instead of a regex so nested JSON is handled correctly.
 export function extractInvestViz(text) {
-  const match = text.match(/INVEST_VIZ:\s*(\{[\s\S]*?\})\s*(?:\n|$)/i)
-  if (!match) return { clean: text, vizData: null }
+  const prefixMatch = text.match(/INVEST_VIZ:\s*\{/i)
+  if (!prefixMatch) return { clean: text, vizData: null }
+
+  const jsonStart = prefixMatch.index + prefixMatch[0].lastIndexOf('{')
+  let depth = 0
+  let inString = false
+  let jsonEnd = -1
+
+  for (let i = jsonStart; i < text.length; i++) {
+    const c = text[i]
+    if (c === '"' && text[i - 1] !== '\\') inString = !inString
+    if (!inString) {
+      if (c === '{') depth++
+      else if (c === '}') {
+        depth--
+        if (depth === 0) { jsonEnd = i + 1; break }
+      }
+    }
+  }
+
+  if (jsonEnd === -1) return { clean: text, vizData: null }
+
   try {
-    const vizData = JSON.parse(match[1])
-    const clean   = text.replace(match[0], '').trim()
+    const vizData = JSON.parse(text.slice(jsonStart, jsonEnd))
+    const clean = (text.slice(0, prefixMatch.index) + text.slice(jsonEnd)).trim()
     return { clean, vizData }
   } catch {
     return { clean: text, vizData: null }

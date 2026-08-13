@@ -10,7 +10,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || ''
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 60000,
+  timeout: 600000,
 })
 
 /**
@@ -23,7 +23,7 @@ export async function sendMessage(message, sessionId = null, profile = null) {
   const res = await apiClient.post('/api/chat', {
     message,
     session_id: sessionId || undefined,
-    profile:    profile   || undefined,
+    profile: profile || undefined,
   })
   return res.data
 }
