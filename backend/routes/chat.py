@@ -1,7 +1,8 @@
 """
 Chat API routes — Agentic Finance Advisor.
 
-POST /api/chat — Send a message, run the finance agent, get a response.
+POST /api/chat                — run the agent, return a reply (rate-limited).
+GET  /api/history/{session_id}— list prior messages (auth-required).
 """
 
 import asyncio
@@ -11,18 +12,25 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from ai.emotion_detector import emotion_detector
-from ai.agent import run_finance_agent, _sessions
+from ai.agent import run_finance_agent
 from ai.rag_pipeline import retrieve_context
+from db.database import load_messages, save_message, session_owner
+from routes.auth import optional_user, require_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["chat"])
 
 # Thread pool so blocking Groq/torch calls don't freeze the async event loop
 _executor = ThreadPoolExecutor(max_workers=4)
+
+# Per-IP rate limit for chat — protects your Groq credits from spam.
+_limiter = Limiter(key_func=get_remote_address)
 
 # Trivial messages — canned replies, zero Groq/BERT/RAG cost.
 _TRIVIAL_REPLIES: dict[str, str] = {
@@ -86,21 +94,29 @@ class ChatResponse(BaseModel):
 # ── Endpoint ───────────────────────────────────────────────────────────────────
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+@_limiter.limit("20/minute")
+async def chat(
+    request: Request,
+    body:    ChatRequest,
+    user_id: Optional[int] = Depends(optional_user),
+):
     """
     Agentic chat endpoint.
     Pipeline: Emotion detection → RAG retrieval → Finance Agent (with tools)
     All blocking calls run in a thread pool so the event loop stays free.
     """
-    session_id = request.session_id or str(uuid.uuid4())
-    loop = asyncio.get_event_loop()
+    session_id = body.session_id or str(uuid.uuid4())
+    loop = asyncio.get_running_loop()
 
     # 0 — Trivial / greeting short-circuit → skip BERT + RAG + Groq entirely.
-    normalized = request.message.lower().strip().rstrip(".!?,")
+    normalized = body.message.lower().strip().rstrip(".!?,")
     if normalized in _TRIVIAL_REPLIES:
+        reply = _TRIVIAL_REPLIES[normalized]
         logger.info(f"[Chat] Trivial short-circuit: {normalized!r} (no Groq call)")
+        save_message(session_id, "user",      body.message, user_id)
+        save_message(session_id, "assistant", reply,        user_id)
         return ChatResponse(
-            response      = _TRIVIAL_REPLIES[normalized],
+            response      = reply,
             emotion       = "neutral",
             emotion_score = 1.0,
             emotion_color = "#6b7280",
@@ -112,38 +128,43 @@ async def chat(request: ChatRequest):
     # 1 — Emotion detection (runs torch model — blocking, use thread)
     try:
         emotion_data = await loop.run_in_executor(
-            _executor, emotion_detector.detect, request.message
+            _executor, emotion_detector.detect, body.message
         )
-    except Exception as exc:
-        logger.error(f"Emotion detection failed: {exc}")
+    except Exception:
+        logger.exception("Emotion detection failed")
         emotion_data = {"emotion": "neutral", "score": 1.0, "color": "#6b7280"}
 
-    # 2 — RAG retrieval (runs sentence-transformers — blocking, use thread)
+    # 2 — RAG retrieval
     try:
-        context = await loop.run_in_executor(
-            _executor, retrieve_context, request.message
-        )
-    except Exception as exc:
-        logger.error(f"RAG retrieval failed: {exc}")
+        context = await loop.run_in_executor(_executor, retrieve_context, body.message)
+    except Exception:
+        logger.exception("RAG retrieval failed")
         context = ""
 
-    # 3 — Run finance agent (calls Groq API + tool execution — blocking, use thread)
+    # 3 — Run finance agent
     try:
         agent_fn = partial(
             run_finance_agent,
             session_id    = session_id,
-            user_message  = request.message,
+            user_message  = body.message,
             emotion       = emotion_data["emotion"],
             emotion_score = emotion_data["score"],
             context       = context,
-            profile       = request.profile.model_dump() if request.profile else {},
+            profile       = body.profile.model_dump() if body.profile else {},
         )
         ai_response, agent_steps_raw, suggestions = await loop.run_in_executor(
             _executor, agent_fn
         )
-    except Exception as exc:
-        logger.error(f"Finance agent failed: {exc}")
-        raise HTTPException(status_code=500, detail=f"AI agent error: {str(exc)}")
+    except Exception:
+        logger.exception("Finance agent failed")
+        raise HTTPException(status_code=502, detail="AI agent is busy — please try again.")
+
+    # 4 — Persist messages so history survives container restarts.
+    try:
+        save_message(session_id, "user",      body.message,    user_id)
+        save_message(session_id, "assistant", ai_response,     user_id)
+    except Exception:
+        logger.exception("Failed to persist chat message")  # non-fatal
 
     agent_steps = [
         AgentStep(
@@ -167,7 +188,25 @@ async def chat(request: ChatRequest):
 
 
 @router.get("/history/{session_id}")
-async def get_history(session_id: str):
-    """Return conversation history for a given session (in-memory)."""
-    messages = _sessions.get(session_id, [])
-    return {"session_id": session_id, "messages": messages}
+async def get_history(
+    session_id: str,
+    payload:    dict = Depends(require_user),
+):
+    """
+    Return conversation history for a given session.
+    Only the user who originally created the session can read it.
+    """
+    owner = session_owner(session_id)
+    if owner is None:
+        # Anonymous session — no one can read it via this endpoint.
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    try:
+        requester_id = int(payload["sub"])
+    except (KeyError, ValueError):
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    if owner != requester_id:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    return {"session_id": session_id, "messages": load_messages(session_id)}

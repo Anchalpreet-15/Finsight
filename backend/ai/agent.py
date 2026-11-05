@@ -17,7 +17,23 @@ from .financial_tools import TOOL_SCHEMAS, execute_tool
 
 logger = logging.getLogger(__name__)
 
-# ── In-process session memory ──────────────────────────────────────────────────
+# ── Groq client (module-level — reused across requests, one TLS handshake) ────
+_groq_client: Optional[Groq] = None
+
+
+def _get_client() -> Groq:
+    global _groq_client
+    if _groq_client is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise EnvironmentError("GROQ_API_KEY is not set.")
+        _groq_client = Groq(api_key=api_key)
+    return _groq_client
+
+
+# ── In-process rolling message buffer (small, per-session, for fewer DB hits) ─
+# Persistent history lives in SQLite; this is just a hot cache of the last
+# couple of turns so we don't pay a DB round-trip for every reply.
 _sessions: dict[str, list] = {}
 
 # ── Profile label maps ─────────────────────────────────────────────────────────
@@ -240,11 +256,7 @@ def run_finance_agent(
         agent_steps — List of tool calls made during this turn
         suggestions — List of suggested follow-up questions
     """
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise EnvironmentError("GROQ_API_KEY is not set.")
-
-    client = Groq(api_key=api_key)
+    client = _get_client()
 
     system_content = (
         _SYSTEM_PROMPT

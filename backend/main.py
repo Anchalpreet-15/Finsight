@@ -4,11 +4,16 @@ Initializes the RAG pipeline on startup and registers all API routes.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from routes.chat import router as chat_router
 from routes.daily_advice import router as advice_router
@@ -38,28 +43,67 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Finsight API.")
 
 
+# ── Rate limiter (per-IP, in-memory) ──────────────────────────────────────────
+limiter = Limiter(key_func=get_remote_address, default_limits=["120/minute"])
+
 app = FastAPI(
     title="Finsight API",
     description="Conversational AI for personal finance — understands emotions, retrieves knowledge, responds like a friend.",
     version="2.0.0",
     lifespan=lifespan,
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Allow all origins in development; restrict to your Vercel URL in production.
+
+# ── CORS ──────────────────────────────────────────────────────────────────────
+# Comma-separated ALLOWED_ORIGINS env var in prod. Local dev defaults to the
+# Vite dev server. NEVER combine "*" with allow_credentials=True — browsers
+# silently reject that combo.
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "").strip()
+if _raw_origins:
+    _origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+else:
+    _origins = [
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:5173",
+    ]
+logger.info(f"CORS allowed origins: {_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
-app.include_router(chat_router, prefix="/api")
+
+# ── Routers ───────────────────────────────────────────────────────────────────
+app.include_router(chat_router,   prefix="/api")
 app.include_router(advice_router, prefix="/api")
-app.include_router(auth_router, prefix="/api")
+app.include_router(auth_router,   prefix="/api")
 
 
+# ── Health ────────────────────────────────────────────────────────────────────
 @app.get("/", tags=["health"])
 def health_check():
-    """Quick health check endpoint."""
     return {"status": "ok", "app": "Finsight API"}
+
+
+@app.get("/health/ready", tags=["health"])
+def readiness():
+    """RAG + DB ready for traffic."""
+    from ai.rag_pipeline import is_ready
+    return {"ready": is_ready()}
+
+
+# Generic error surface — never leak stack traces to clients.
+@app.exception_handler(Exception)
+async def unhandled(request: Request, exc: Exception):
+    logger.exception(f"Unhandled error on {request.url.path}: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Something went wrong on our end. Please try again."},
+    )

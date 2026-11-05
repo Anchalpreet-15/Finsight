@@ -1,6 +1,6 @@
 """
 RAG Pipeline — loads financial knowledge text files, chunks them,
-embeds with sentence-transformers, and stores in a persistent ChromaDB.
+embeds with sentence-transformers, and stores in an in-memory ChromaDB.
 
 Call `initialize_rag()` once at app startup.
 Call `retrieve_context(query)` at runtime to fetch relevant passages.
@@ -10,14 +10,13 @@ import glob
 import logging
 import os
 
-from sentence_transformers import SentenceTransformer
 import chromadb
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
-_BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR   = os.path.normpath(os.path.join(_BASE_DIR, "../../data"))
-CHROMA_DIR = os.path.normpath(os.path.join(_BASE_DIR, "../../chroma_db"))
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR  = os.path.normpath(os.path.join(_BASE_DIR, "../../data"))
 
 EMBED_MODEL = "all-MiniLM-L6-v2"
 TOP_K       = 2
@@ -39,8 +38,8 @@ def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 60) -> list[str
 
 def initialize_rag() -> None:
     """
-    Build (or load) the ChromaDB vector store from /data/*.txt files.
-    Skips re-indexing if the collection already has documents.
+    Build the ChromaDB vector store from /data/*.txt files.
+    In-memory only — fast and ephemeral; rebuilt on each process start.
     """
     global _collection, _model
 
@@ -52,15 +51,14 @@ def initialize_rag() -> None:
     logger.info(f"Loading embedding model '{EMBED_MODEL}'…")
     _model = SentenceTransformer(EMBED_MODEL)
 
-    chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+    # In-memory client: on ephemeral hosts (HF Spaces, Render free) a persistent
+    # disk is gone on cold start anyway, so the "skip if already indexed" check
+    # never hit. In-memory removes disk I/O for identical startup cost.
+    chroma_client = chromadb.Client()
     _collection = chroma_client.get_or_create_collection(
         name="financial_knowledge",
         metadata={"hnsw:space": "cosine"},
     )
-
-    if _collection.count() > 0:
-        logger.info(f"ChromaDB already has {_collection.count()} chunks — skipping re-indexing.")
-        return
 
     all_chunks: list[str] = []
     all_ids:    list[str] = []
@@ -88,12 +86,17 @@ def initialize_rag() -> None:
     batch_size = 100
     for i in range(0, len(all_chunks), batch_size):
         _collection.upsert(
-            ids=all_ids[i: i + batch_size],
-            documents=all_chunks[i: i + batch_size],
-            embeddings=embeddings[i: i + batch_size],
+            ids        = all_ids[i: i + batch_size],
+            documents  = all_chunks[i: i + batch_size],
+            embeddings = embeddings[i: i + batch_size],
         )
 
-    logger.info(f"ChromaDB ready at {CHROMA_DIR} with {len(all_chunks)} chunks.")
+    logger.info(f"ChromaDB ready (in-memory) with {len(all_chunks)} chunks.")
+
+
+def is_ready() -> bool:
+    """True once the embedding model and collection are loaded."""
+    return _collection is not None and _model is not None
 
 
 def retrieve_context(query: str) -> str:
@@ -101,8 +104,11 @@ def retrieve_context(query: str) -> str:
     Retrieve the most relevant financial knowledge passages for `query`.
     Returns passages joined by double newlines, or empty string if not initialized.
     """
-    if _collection is None or _model is None:
+    if not is_ready():
         logger.warning("RAG not initialized — returning empty context.")
+        return ""
+    # Short queries are too noisy to usefully embed.
+    if len(query.strip()) < 4:
         return ""
 
     try:
@@ -110,6 +116,6 @@ def retrieve_context(query: str) -> str:
         results = _collection.query(query_embeddings=[query_embedding], n_results=TOP_K)
         docs = results.get("documents", [[]])[0]
         return "\n\n".join(d.strip() for d in docs if d.strip())
-    except Exception as e:
-        logger.error(f"RAG retrieval error: {e}")
+    except Exception:
+        logger.exception("RAG retrieval error")
         return ""

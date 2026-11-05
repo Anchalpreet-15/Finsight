@@ -23,6 +23,9 @@ Tools:
 """
 
 import logging
+import os
+
+import httpx
 import yfinance as yf
 from duckduckgo_search import DDGS
 
@@ -311,17 +314,53 @@ def get_stock_data(ticker_symbol: str) -> str:
 
 # ── 9. Financial Web Search ────────────────────────────────────────────────────
 
+def _tavily_search(query: str, api_key: str) -> str | None:
+    """Use Tavily if a key is configured. Returns None on failure to let caller fall back."""
+    try:
+        resp = httpx.post(
+            "https://api.tavily.com/search",
+            json={
+                "api_key":        api_key,
+                "query":          query,
+                "max_results":    3,
+                "search_depth":   "basic",
+                "include_answer": False,
+            },
+            timeout=10.0,
+        )
+        resp.raise_for_status()
+        results = resp.json().get("results", [])
+        if not results:
+            return None
+        lines = [f"- {r.get('title', '')}: {r.get('content', '')[:300]}" for r in results]
+        return f"**Web Search Results for '{query}'** (via Tavily)\n" + "\n".join(lines)
+    except Exception as e:
+        logger.warning(f"Tavily search failed: {e}")
+        return None
+
+
 def search_financial_web(query: str) -> str:
+    # Prefer Tavily if configured (more reliable, higher quality for finance).
+    tavily_key = os.getenv("TAVILY_API_KEY", "").strip()
+    if tavily_key:
+        tavily_result = _tavily_search(query, tavily_key)
+        if tavily_result:
+            return tavily_result
+        # fall through to DDG
+
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(query, max_results=3))
         if not results:
-            return f"No results found for: {query}"
+            return f"No live results found for: {query}"
         lines = [f"- {r['title']}: {r['body']}" for r in results]
         return f"**Web Search Results for '{query}'**\n" + "\n".join(lines)
     except Exception as e:
-        logger.error(f"DuckDuckGo search error: {e}")
-        return f"Search unavailable for: {query}. Please try a different query."
+        logger.warning(f"DuckDuckGo search unavailable: {e}")
+        return (
+            f"Live search is temporarily unavailable for '{query}'. "
+            "Try a more specific query or ask about general finance concepts instead."
+        )
 
 
 # ── 10. PPF Calculator ─────────────────────────────────────────────────────────

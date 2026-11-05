@@ -21,8 +21,19 @@ build/
 .env.production
 backend/.env
 
-# ChromaDB vector store (regenerated on startup)
+# ChromaDB vector store (now in-memory, but keep ignored in case someone switches back)
 chroma_db/
+
+# SQLite databases — NEVER commit a dev DB (may contain hashed creds)
+*.db
+*.sqlite
+*.sqlite3
+backend/finsight.db
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Node.js
 node_modules/
