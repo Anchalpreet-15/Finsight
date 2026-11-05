@@ -2,12 +2,15 @@
 
 Target stack:
 - **Backend** → Hugging Face Spaces (Docker SDK, free, 16 GB RAM — enough for the BERT emotion model)
-- **Frontend** → Vercel (free, static build)
+- **Frontend** → Cloudflare Pages *(recommended)*, Netlify, or Vercel — all free, all pre-configured in this repo
 
-Everything in this repo is already wired for it. You need:
+You need:
 - A Groq API key — https://console.groq.com (free)
 - A Hugging Face account — https://huggingface.co/join
-- A Vercel account — https://vercel.com/signup (sign in with GitHub)
+- A hosting account for the frontend — pick one:
+  - Cloudflare Pages — https://dash.cloudflare.com/sign-up *(best free tier: unlimited bandwidth, 500 builds/month)*
+  - Netlify — https://app.netlify.com/signup
+  - Vercel — https://vercel.com/signup
 
 ---
 
@@ -43,20 +46,47 @@ You'll be prompted for an HF access token (create at https://huggingface.co/sett
 
 ---
 
-## 2. Deploy the frontend to Vercel
+## 2. Deploy the frontend — pick ONE
 
-1. Go to https://vercel.com/new
-2. **Import Git Repository** → pick `anchalpreet-15/finsight`.
-3. Configure:
-   - **Root Directory:** `frontend`
-   - **Framework Preset:** Vite (auto-detected)
-   - **Build Command:** `npm run build` (default)
-   - **Output Directory:** `dist` (default)
-4. **Environment Variables** → add:
-   - Name: `VITE_API_URL`
-   - Value: `https://<your-hf-username>-finsight.hf.space` (from step 1.6, **no trailing slash**)
-5. Click **Deploy**. Takes ~1 min.
-6. Open the Vercel URL. Chat should work.
+### 2a. Cloudflare Pages *(recommended — unlimited bandwidth, fastest CDN)*
+
+1. Go to https://dash.cloudflare.com → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
+2. Authorize GitHub → select `anchalpreet-15/finsight`.
+3. **Set up builds and deployments**:
+   - **Framework preset:** Vite
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+   - **Root directory:** `frontend`
+4. **Environment variables** → add:
+   - `VITE_API_URL` = `https://<your-hf-username>-finsight.hf.space` (**no trailing slash**)
+5. **Save and Deploy**. First build ~1–2 min. URL is `https://<project>.pages.dev`.
+6. SPA routing works out of the box — the `frontend/public/_redirects` file in this repo tells Cloudflare to send unknown paths to `index.html`.
+
+### 2b. Netlify
+
+1. Go to https://app.netlify.com/start → authorize GitHub → pick the repo.
+2. Netlify reads `frontend/netlify.toml` and fills in base/command/publish automatically.
+3. **Site configuration → Environment variables** → add `VITE_API_URL` as above.
+4. Deploy. URL is `https://<random>.netlify.app` (rename in **Site settings**).
+
+### 2c. Vercel
+
+1. Go to https://vercel.com/new → **Import** `anchalpreet-15/finsight`.
+2. **Root Directory:** `frontend`. Framework auto-detects as Vite.
+3. **Environment Variables** → `VITE_API_URL` = HF Space URL.
+4. Deploy.
+
+---
+
+## Quick comparison
+
+| Host | Bandwidth free tier | Build minutes | Cold start | SPA routing |
+|---|---|---|---|---|
+| **Cloudflare Pages** | **Unlimited** | 500/month | None | ✓ via `_redirects` |
+| Netlify | 100 GB/month | 300/month | None | ✓ via `netlify.toml` |
+| Vercel | 100 GB/month | 6000 min/month | None | ✓ auto |
+
+For a student project with unknown traffic, Cloudflare wins because an unexpected spike won't push you to a paid tier.
 
 ---
 
@@ -77,4 +107,17 @@ You'll be prompted for an HF access token (create at https://huggingface.co/sett
 - `Dockerfile` (repo root) — builds the FastAPI backend for HF Space.
 - `.dockerignore` — keeps the image lean.
 - `README.md` — HF Space YAML frontmatter at the top configures the Space.
-- `frontend/vercel.json` — pins Vercel to Vite build.
+- `frontend/vercel.json` — Vercel (Vite preset).
+- `frontend/netlify.toml` — Netlify build + SPA fallback.
+- `frontend/public/_redirects` — Cloudflare Pages / Netlify SPA routing fallback.
+
+## Groq credit efficiency
+
+This repo has token-saving code paths so you don't burn through Groq's free tier in an hour:
+- Trivial messages ("hi", "thanks", "ok", …) → canned reply, zero Groq call.
+- Tool schemas sent to Groq are filtered per-message (keyword routed) — saves ~1500-2000 input tokens per call when only one calculator is relevant.
+- Compact system prompt (~500 chars shorter than v1).
+- `max_tokens` 900 → 500; `max_iterations` 4 → 3.
+- Tool outputs are truncated before being re-sent to the LLM.
+- 5-minute in-process response cache for identical messages.
+- Conversation history re-sent to the LLM is capped at the last 1 turn.

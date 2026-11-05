@@ -4,9 +4,11 @@ Finsight Agentic Finance Advisor
 Tool-calling agent using the Groq SDK directly (no LangChain).
 """
 
+import hashlib
 import json
 import logging
 import os
+import time
 from typing import Optional
 
 from groq import Groq
@@ -82,33 +84,112 @@ _TOOL_ICONS = {
 }
 
 
-# ── System prompt ──────────────────────────────────────────────────────────────
+# ── System prompt (compact — detailed facts live in RAG + tools) ──────────────
 _SYSTEM_PROMPT = """\
-You are Finsight, India's personal finance AI advisor. Be warm, concise, and accurate.
+You are Finsight, India's personal finance AI. Warm, concise, accurate.
 
-KNOWLEDGE (FY2025-26):
-Tax-New: 0-4L=0%,4-8L=5%,8-12L=10%,12-16L=15%,16-20L=20%,20-24L=25%,>24L=30%; std-ded ₹75K; rebate87A ₹60K if taxable≤₹12L → zero tax to ₹12.75L.
-Tax-Old: 0-2.5L=0%,2.5-5L=5%,5-10L=20%,>10L=30%; std-ded ₹50K; rebate87A ₹12.5K if taxable≤₹5L. Choose old only if deductions>₹3.75L.
-Invest: MF direct>regular(0.5-1%/yr); PPF 7.1% EEE 15yr; EPF 8.25%; FD 6.5-8%; NPS tax-efficient; SGB>GoldETF>physical; crypto 30%tax+1%TDS max 5-10%.
-Insurance: term=10-15x income (pure term only); health ≥₹5L (family floater ₹10-20L).
-Credit: CIBIL≥750; utilisation<30%; pay full due; home-loan 8-9.5%; EMI≤40% income.
-Emergency: 3mo(govt) / 6mo(private) / 12mo(freelance).
+FY25-26 quick facts:
+- New tax regime: slabs 0/5/10/15/20/25/30% at 4/8/12/16/20/24L; std-ded ₹75K; 87A rebate ₹60K if taxable ≤₹12L (zero tax up to ₹12.75L salary).
+- PPF 7.1% EEE 15y; EPF 8.25%; FD 6.5-8%; direct MF > regular. Term insurance 10-15× income.
+- CIBIL ≥750; utilisation <30%; EMI ≤40% income. Emergency fund 3-12 months.
 
-TOOLS: Always use tools for any calculation or live data. get_stock_data: append .NS(NSE)/.BO(BSE). search_financial_web: for RBI rates/NAVs/news. calculate_income_tax: for any tax query.
+TOOLS: Call them for any number, live data, or specific tax/SIP/EMI/PPF/stock query. Stock tickers: add .NS (NSE) or .BO (BSE). Do not compute yourself when a tool exists.
 
-FORMAT: **bold** key numbers; ₹ for amounts; bullets for steps; ## for sections; 1-2 actionable next steps at end. Be brief — cover essentials only.
+STYLE: **bold** numbers, ₹ for amounts, bullets, ## sections. Keep it tight.
+End EVERY reply with: SUGGESTIONS: q1 | q2 | q3
 
-VISUALIZATION RULE: For investment allocation questions ONLY, output this block on the line immediately AFTER the SUGGESTIONS line:
-INVEST_VIZ: {"amount":<number>,"monthly":<number>,"summary":"<1 line>","asset_allocation":[{"name":"Equity","value":70,"why":"Growth"},{"name":"Debt","value":20,"why":"Stability"},{"name":"Gold","value":10,"why":"Hedge"}],"sector_allocation":[{"name":"Banking & Finance","value":25},{"name":"IT & Technology","value":20},{"name":"FMCG","value":15},{"name":"Pharma","value":15},{"name":"Energy","value":15},{"name":"Consumer","value":10}]}
-Adjust equity%: 18-30→80%, 31-45→65%, 46+→45%.
+For investment-allocation asks, add on the line AFTER SUGGESTIONS:
+INVEST_VIZ: {"amount":<n>,"monthly":<n>,"summary":"<1 line>","asset_allocation":[{"name":"Equity","value":<%>,"why":"..."},{"name":"Debt","value":<%>,"why":"..."},{"name":"Gold","value":<%>,"why":"..."}],"sector_allocation":[{"name":"Banking","value":25},{"name":"IT","value":20},{"name":"FMCG","value":15},{"name":"Pharma","value":15},{"name":"Energy","value":15},{"name":"Consumer","value":10}]}
+Equity%: 18-30→80, 31-45→65, 46+→45.
 
 Profile: PROFILE_SECTION
-Emotion: EMOTION (EMOTION_SCORE) — stressed→calm+steps; confused→simple+examples; excited→validate+caution; sad→acknowledge+hope; neutral→warm+professional.
-
-Context: CONTEXT
-
-End with: SUGGESTIONS: <q1> | <q2> | <q3>\
+Emotion: EMOTION (EMOTION_SCORE) — stressed→calm+steps; confused→simple; excited→validate+caution; sad→acknowledge.
+Context: CONTEXT\
 """
+
+
+# ── Smart tool routing ─────────────────────────────────────────────────────────
+_TOOL_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "calculate_sip":               ("sip", "mutual fund", " mf ", "systematic"),
+    "calculate_emi":               ("emi", "loan", "home loan", "car loan", "personal loan"),
+    "calculate_income_tax":        ("income tax", "tax slab", "tax regime", "salary tax", "how much tax"),
+    "calculate_savings_goal":      ("savings goal", "save for", "goal plan"),
+    "budget_planner":              ("budget", "50/30/20", "monthly plan"),
+    "emergency_fund_calculator":   ("emergency fund", "rainy day", "emergency"),
+    "debt_payoff_advisor":         ("debt", "payoff", "snowball", "avalanche", "credit card debt"),
+    "get_stock_data":              ("stock", "share price", "ticker", "nse", "bse", "equity price"),
+    "search_financial_web":        ("latest", "news", "today", "current rate", "rbi", "nav", "live"),
+    "calculate_ppf":               ("ppf", "public provident"),
+    "calculate_fd_rd":             ("fd ", " rd ", "fixed deposit", "recurring deposit"),
+    "calculate_hra_exemption":     ("hra", "house rent allowance"),
+    "calculate_capital_gains_tax": ("capital gain", "ltcg", "stcg"),
+    "calculate_retirement_corpus": ("retirement", "pension", "retire at"),
+    "cibil_score_advisor":         ("cibil", "credit score"),
+}
+
+
+def _select_tools(user_message: str) -> list:
+    """
+    Only send the tool schemas that are likely relevant to this message.
+    Saves ~1500-2000 input tokens per Groq call when the match is narrow.
+    """
+    msg = f" {user_message.lower()} "
+    matched = {
+        name for name, kws in _TOOL_KEYWORDS.items()
+        if any(kw in msg for kw in kws)
+    }
+    if not matched:
+        # No keyword match → short conversational turn, no tools needed.
+        # The LLM can still answer from its system knowledge + RAG context.
+        return []
+    return [t for t in TOOL_SCHEMAS if t["function"]["name"] in matched]
+
+
+def _truncate_for_llm(text: str, max_chars: int = 800) -> str:
+    """Trim bulky tool outputs before putting them back in the LLM context."""
+    if text is None:
+        return ""
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars] + "\n…[truncated]"
+
+
+# ── Tiny response cache (per-process) ─────────────────────────────────────────
+# Same (system + last-user-message + profile-fingerprint) hitting Groq twice
+# within _CACHE_TTL seconds returns the cached reply. Saves redundant calls
+# on reloads or duplicate submissions.
+_CACHE_TTL = 300  # 5 minutes
+_response_cache: dict[str, tuple[float, tuple[str, list, list]]] = {}
+
+
+def _cache_key(user_message: str, context: str, profile: dict, emotion: str) -> str:
+    h = hashlib.sha1()
+    h.update(user_message.strip().lower().encode())
+    h.update(b"|")
+    h.update(context.encode())
+    h.update(b"|")
+    h.update(json.dumps(profile or {}, sort_keys=True).encode())
+    h.update(b"|")
+    h.update(emotion.encode())
+    return h.hexdigest()
+
+
+def _cache_get(key: str):
+    entry = _response_cache.get(key)
+    if not entry:
+        return None
+    ts, value = entry
+    if time.time() - ts > _CACHE_TTL:
+        _response_cache.pop(key, None)
+        return None
+    return value
+
+
+def _cache_set(key: str, value):
+    # Keep cache bounded.
+    if len(_response_cache) > 256:
+        _response_cache.pop(next(iter(_response_cache)), None)
+    _response_cache[key] = (time.time(), value)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -174,7 +255,19 @@ def run_finance_agent(
     )
 
     history = _sessions.setdefault(session_id, [])
-    trimmed_history = history[-4:] if len(history) > 4 else history
+    # Keep only the last 1 user/assistant pair (2 messages) — any further back
+    # is paid-for context the model rarely uses.
+    trimmed_history = history[-2:] if len(history) > 2 else history
+
+    # Cache-check before spending any tokens.
+    cache_key = _cache_key(user_message, context or "", profile or {}, emotion)
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        logger.info(f"[Agent] Cache hit for session={session_id[:8]}")
+        reply, agent_steps_cached, suggestions_cached = cached
+        history.append({"role": "user",      "content": user_message})
+        history.append({"role": "assistant", "content": reply})
+        return reply, agent_steps_cached, suggestions_cached
 
     messages: list[dict] = [
         {"role": "system", "content": system_content},
@@ -183,20 +276,30 @@ def run_finance_agent(
     ]
 
     agent_steps: list[dict] = []
-    max_iterations = 4
+    max_iterations = 3  # was 4 — one less round saves a full Groq call on complex turns
     final_content: str | None = None
 
-    for iteration in range(max_iterations):
-        logger.info(f"[Agent] Iteration {iteration + 1} | session={session_id[:8]} | emotion={emotion}")
+    # Smart tool filter: only send relevant schemas (saves ~1500-2000 input tokens).
+    selected_tools = _select_tools(user_message)
+    use_tools = bool(selected_tools)
 
-        response = client.chat.completions.create(
+    for iteration in range(max_iterations):
+        logger.info(
+            f"[Agent] Iter {iteration + 1} | session={session_id[:8]} "
+            f"| emotion={emotion} | tools={len(selected_tools) if use_tools else 0}"
+        )
+
+        completion_kwargs = dict(
             model="llama-3.1-8b-instant",
             messages=messages,
-            tools=TOOL_SCHEMAS,
-            tool_choice="auto",
             temperature=0.3,
-            max_tokens=900,
+            max_tokens=500,  # was 900 — plenty for conversational finance replies
         )
+        if use_tools:
+            completion_kwargs["tools"] = selected_tools
+            completion_kwargs["tool_choice"] = "auto"
+
+        response = client.chat.completions.create(**completion_kwargs)
 
         msg = response.choices[0].message
 
@@ -237,13 +340,13 @@ def run_finance_agent(
                 "tool":   tool_name,
                 "label":  _TOOL_LABELS.get(tool_name, tool_name.replace("_", " ").title()),
                 "icon":   _TOOL_ICONS.get(tool_name, "🔧"),
-                "result": result,
+                "result": result,  # full result → user
             })
 
             messages.append({
                 "role":         "tool",
                 "tool_call_id": tc.id,
-                "content":      result,
+                "content":      _truncate_for_llm(result),  # trimmed → LLM context
             })
     else:
         logger.warning(f"[Agent] Max iterations ({max_iterations}) reached for session {session_id[:8]}")
@@ -267,5 +370,11 @@ def run_finance_agent(
 
     history.append({"role": "user",      "content": user_message})
     history.append({"role": "assistant", "content": reply})
+    # Bound per-session memory so long chats don't grow unbounded (saves RAM,
+    # and we only resend the last 2 anyway).
+    if len(history) > 20:
+        del history[: len(history) - 20]
+
+    _cache_set(cache_key, (reply, agent_steps, suggestions))
 
     return reply, agent_steps, suggestions

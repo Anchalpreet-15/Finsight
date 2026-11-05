@@ -24,6 +24,32 @@ router = APIRouter(tags=["chat"])
 # Thread pool so blocking Groq/torch calls don't freeze the async event loop
 _executor = ThreadPoolExecutor(max_workers=4)
 
+# Trivial messages — canned replies, zero Groq/BERT/RAG cost.
+_TRIVIAL_REPLIES: dict[str, str] = {
+    "hi":           "Hi! I'm Finsight. Ask me anything about money — budgeting, taxes, investing, EMIs.",
+    "hello":        "Hello! What's on your mind — budget, taxes, investing, or something else?",
+    "hey":          "Hey! What money topic can I help with today?",
+    "yo":           "Hey! What money topic can I help with today?",
+    "thanks":       "You're welcome! Anything else on your mind?",
+    "thank you":    "Happy to help! What else can I look up?",
+    "thx":          "You're welcome! Anything else on your mind?",
+    "ok":           "Got it. What would you like to tackle next?",
+    "okay":         "Got it. What would you like to tackle next?",
+    "cool":         "Nice. What's next on the agenda?",
+    "nice":         "Glad that helped. What else can I dig into?",
+    "great":        "Glad that helped. What else can I dig into?",
+    "bye":          "Bye! Come back anytime — your finances will thank you.",
+    "goodbye":      "Bye! Come back anytime — your finances will thank you.",
+    "good morning": "Good morning! What's today's money question?",
+    "good evening": "Good evening! What's on your mind — budgets, taxes, or investing?",
+}
+
+_DEFAULT_SUGGESTIONS = [
+    "Help me plan my monthly budget",
+    "How much income tax will I pay this year?",
+    "Where should I start investing?",
+]
+
 
 # ── Request / Response schemas ─────────────────────────────────────────────────
 
@@ -68,6 +94,20 @@ async def chat(request: ChatRequest):
     """
     session_id = request.session_id or str(uuid.uuid4())
     loop = asyncio.get_event_loop()
+
+    # 0 — Trivial / greeting short-circuit → skip BERT + RAG + Groq entirely.
+    normalized = request.message.lower().strip().rstrip(".!?,")
+    if normalized in _TRIVIAL_REPLIES:
+        logger.info(f"[Chat] Trivial short-circuit: {normalized!r} (no Groq call)")
+        return ChatResponse(
+            response      = _TRIVIAL_REPLIES[normalized],
+            emotion       = "neutral",
+            emotion_score = 1.0,
+            emotion_color = "#6b7280",
+            session_id    = session_id,
+            suggestions   = _DEFAULT_SUGGESTIONS,
+            agent_steps   = [],
+        )
 
     # 1 — Emotion detection (runs torch model — blocking, use thread)
     try:
