@@ -1,0 +1,22 @@
+# Root requirements.txt — read by the Hugging Face GRADIO SDK.
+# Mirrors backend/requirements.txt (needed for the Docker SDK) plus `gradio`.
+# If you only deploy via Docker, you can ignore this file; the Dockerfile
+# installs from backend/requirements.txt.
+
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+python-dotenv>=1.0,<2.0
+transformers>=4.45,<5.0
+torch>=2.5,<3.0
+groq>=0.11,<1.0
+chromadb>=0.5,<1.0
+sentence-transformers>=3.0,<4.0
+pydantic>=2.6,<3.0
+httpx>=0.27,<1.0
+yfinance>=0.2.30,<1.0
+duckduckgo-search>=5.0,<9.0
+PyJWT>=2.9,<3.0
+bcrypt>=4.0,<5.0
+tzdata>=2024.1
+slowapi>=0.1.9,<1.0
+gradio>=4.44,<6.0

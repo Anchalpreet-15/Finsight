@@ -16,10 +16,16 @@ You need:
 
 ## 1. Deploy the backend to Hugging Face Spaces
 
+This repo supports **two** HF Space SDKs. The README frontmatter currently
+picks `sdk: gradio` (works for every account, including the ones where
+Docker is shown as paid). If your account has Docker on the free tier,
+change the frontmatter to `sdk: docker` + `app_port: 7860` and the
+Dockerfile will build instead.
+
 1. Go to https://huggingface.co/new-space
    - **Space name:** `finsight` (or anything)
    - **License:** MIT
-   - **SDK:** **Docker** → **Blank**
+   - **SDK:** **Gradio** → **Blank**  *(free; same 16 GB RAM as Docker)*
    - **Hardware:** CPU Basic (free)
    - Visibility: Public
 2. Click **Create Space**.

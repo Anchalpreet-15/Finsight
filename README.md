@@ -3,10 +3,26 @@ title: Finsight API
 emoji: 💰
 colorFrom: blue
 colorTo: green
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.44.1
+app_file: app.py
 pinned: false
 ---
+
+<!--
+HF Space config notes:
+- Using the Gradio SDK because the Docker SDK is not available on this
+  account's free tier. The Gradio SDK ALSO runs on free CPU Basic (16 GB
+  RAM) and is enough for Finsight's backend.
+- app.py mounts the FastAPI app and serves it on port 7860. The Gradio
+  "UI" is just a status page at /ui — the actual chat UI lives on
+  Cloudflare Pages / Netlify / Vercel.
+- To switch back to Docker SDK, revert the frontmatter to:
+    sdk: docker
+    app_port: 7860
+  and the existing Dockerfile will build.
+-->
+
 
 # Finsight
 
