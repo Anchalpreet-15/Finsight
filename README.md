@@ -1,6 +1,18 @@
+---
+title: Finsight API
+emoji: 💰
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Finsight
 
 > A conversational AI that understands how real people talk about money.
+>
+> **Free-tier deploy instructions:** see [`DEPLOY.md`](DEPLOY.md).
 
 Finsight is a full-stack web app that combines emotion detection, retrieval-augmented generation (RAG), and a conversational LLM to respond like a financially smart, empathetic friend — not a banking chatbot.
 
